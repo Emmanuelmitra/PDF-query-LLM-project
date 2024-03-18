@@ -54,7 +54,7 @@ def get_conversational_chain():
     return chain
 
 # Function for user input and getting answer
-def get_answer(user_question):
+def user_input(user_question):
     embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
     docs = new_db.similarity_search(user_question)
@@ -69,10 +69,9 @@ def main():
     st.title("Chat with PDF using Gemini💬")
     st.write("Upload your PDF files and ask questions!")
 
-    st.sidebar.title("Menu")
-    uploaded_files = st.sidebar.file_uploader("Upload PDF Files", accept_multiple_files=True)
+    uploaded_files = st.file_uploader("Upload PDF Files", accept_multiple_files=True, type=["pdf"])
     if uploaded_files:
-        if st.sidebar.button("Process"):
+        if st.button("Process"):
             with st.spinner("Processing..."):
                 raw_text = get_pdf_text(uploaded_files)
                 text_chunks = get_text_chunks(raw_text)
@@ -83,7 +82,7 @@ def main():
     if user_question:
         st.write("Your Question:", user_question)
         if st.button("Get Answer"):
-            answer = get_answer(user_question)
+            answer = user_input(user_question)
             st.write("Reply:", answer)
 
 if __name__ == "__main__":
