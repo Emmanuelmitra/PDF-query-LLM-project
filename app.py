@@ -62,24 +62,25 @@ def get_conversational_chain():
 
 
 
+from langchain_community.vectorstores import FAISS
+
 def user_input(user_question):
-    embeddings = GoogleGenerativeAIEmbeddings(model = "models/embedding-001")
+    embeddings = GoogleGenerativeAIEmbeddings(model="models/embedding-001")
     
-    new_db = FAISS.load_local("faiss_index", embeddings)
+    # Load the FAISS index with dangerous deserialization enabled
+    new_db = FAISS.load_local("faiss_index", embeddings, allow_dangerous_deserialization=True)
+    
     docs = new_db.similarity_search(user_question)
 
     chain = get_conversational_chain()
-
     
     response = chain(
-        {"input_documents":docs, "question": user_question}
-        , return_only_outputs=True)
+        {"input_documents": docs, "question": user_question},
+        return_only_outputs=True
+    )
 
     print(response)
     st.write("Reply: ", response["output_text"])
-
-
-
 
 def main():
     st.set_page_config("Chat PDF")
@@ -99,8 +100,6 @@ def main():
                 text_chunks = get_text_chunks(raw_text)
                 get_vector_store(text_chunks)
                 st.success("Done")
-
-
 
 if __name__ == "__main__":
     main()
